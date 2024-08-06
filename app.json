@@ -4,24 +4,36 @@
     "slug": "MyReplayCam",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/app-icon.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-screen.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#272B30"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.alisonbucker1k.MyReplayCam",
+      "buildNumber":"2"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/app-icon.png",
+        "backgroundColor": "#272B30"
+      },
+      "package": "com.alisonbucker1k.MyReplayCam"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/app-icon.png"
+    },
+    "plugins": [
+      "expo-video",
+      "expo-media-library"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "43681a93-80c1-4bfa-b196-7a2bd65435cd"
+      }
     }
   }
 }
