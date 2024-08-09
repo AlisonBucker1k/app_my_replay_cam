@@ -21,6 +21,10 @@
         "foregroundImage": "./assets/app-icon.png",
         "backgroundColor": "#272B30"
       },
+      "permissions": [
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ],
       "package": "com.alisonbucker1k.MyReplayCam"
     },
     "web": {
