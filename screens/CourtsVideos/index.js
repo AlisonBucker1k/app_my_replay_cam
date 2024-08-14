@@ -11,6 +11,7 @@ import { shareAsync } from 'expo-sharing'
 import { useNavigation } from "@react-navigation/native"
 import * as MediaLibrary from 'expo-media-library';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import * as Permissions from 'expo-permissions'
 
 const CourtsVideos = ({route}) => {
     const {arena, court} = route.params
@@ -29,6 +30,8 @@ const CourtsVideos = ({route}) => {
     const [datetime, setDatetime] = useState(null)
 
     const [loading, setLoading] = useState(false)
+
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const navigation = useNavigation()
 
@@ -123,16 +126,60 @@ const CourtsVideos = ({route}) => {
         }
     }
 
-    const handleDownload = async () => {
-        return handleDownloadV2()
-        const filename = 'my-replay.mp4';
-        const result = await FileSystem.downloadAsync(
-            `https://api.filmo.club/api/videos/${currentVideo}/blob`,
-            FileSystem.documentDirectory + filename
-        )
-        
-        save(result.uri, filename, result.headers["content-type"])
+    const requestPermissions = async () => {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Permissão necessária', 'Precisamos de permissões de armazenamento para continuar.');
+            return false;
+        }
+
+        if (Platform.OS === 'android' && Platform.Version < 30) {
+        const { status: storageStatus } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY_WRITE_ONLY);
+        if (storageStatus !== 'granted') {
+            Alert.alert('Permissão necessária', 'Precisamos de permissões de armazenamento para continuar.');
+            return false;
+        }
+        }
+
+        return true;
+    };
+
+    const downloadVideo = async (url) => {
+        try {
+            setIsDownloading(true);
+            const video = await FileSystem.downloadAsync(
+              url,
+              FileSystem.documentDirectory + 'myreplay.mp4'
+            );
+            return video.uri;
+          } catch (error) {
+            console.error('Erro ao baixar o vídeo', error);
+            return null;
+          } finally {
+            setIsDownloading(false);
+          }
     }
+
+    const saveToGallery = async (uri) => {
+        try {
+            const asset = await MediaLibrary.createAssetAsync(uri);
+            await MediaLibrary.createAlbumAsync('Download', asset, false);
+            alert('The video download has finished. Check your gallery!');
+        } catch (error) {
+            // console.error('Erro ao salvar na galeria', error);
+            alert('The video download has finished. Check your gallery.');
+        }
+        };
+
+        const downloadAndSaveVideo = async (url) => {
+        const hasPermission = await requestPermissions();
+        if (!hasPermission) return;
+
+        const videoUri = await downloadVideo(url);
+        if (videoUri) {
+            await saveToGallery(videoUri);
+        }
+    };
 
     const handleDownloadV2 = async () => {
         const perm = ''
@@ -270,9 +317,14 @@ const CourtsVideos = ({route}) => {
                     <View style={styles.footer}>
                     <View style={styles.footerContent}>
                         {/* <TouchableOpacity style={styles.text} onPress={() => handleDownload()}> */}
-                        <TouchableOpacity style={styles.text} onPress={() => {Linking.openURL(`https://video.myreplaycam.com?video_id=${currentVideo}`)}}>
-                            <AntDesign name="clouddownloado" size={24} color="#fff" />
-                        </TouchableOpacity>
+                        {!isDownloading && 
+                            <TouchableOpacity style={styles.text} onPress={() => {downloadAndSaveVideo(`https://api.filmo.club/api/videos/${currentVideo}/blob`)}}>
+                                <AntDesign name="clouddownloado" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        ||
+                        <ActivityIndicator color="#FBB02E" style={styles.text} size={24}/>
+                        }
+
                         {/* <TouchableOpacity style={styles.text} onPress={() => handleShare()}> */}
                             {/* <AntDesign name="sharealt" size={24} color="#fff" /> */}
                         {/* </TouchableOpacity> */}
