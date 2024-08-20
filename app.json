@@ -14,8 +14,10 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.alisonbucker1k.MyReplayCam",
-      "buildNumber":"4",
-      "infoPlist": {}
+      "buildNumber":"6",
+      "infoPlist": {
+        "UIBackgroundModes": []
+      }
     },
     "android": {
       "adaptiveIcon": {
